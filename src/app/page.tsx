@@ -9,7 +9,7 @@ export default function Home() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-background">
       <Header />
-      <main>
+      <main className="pt-[73px]">
         <Hero />
         <ProjectsSection />
         <AboutSection />

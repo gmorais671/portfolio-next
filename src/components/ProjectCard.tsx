@@ -2,21 +2,32 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { ArrowUpRight } from "lucide-react";
 import type { Project } from "@/data/projects";
-import { GithubIcon } from "./Icons";
 
 type ProjectCardProps = {
   project: Project;
   variant?: "featured" | "compact";
+  onOpen: (project: Project) => void;
 };
 
-export function ProjectCard({ project, variant = "featured" }: ProjectCardProps) {
+export function ProjectCard({ project, variant = "featured", onOpen }: ProjectCardProps) {
   const [imageError, setImageError] = useState(false);
   const isCompact = variant === "compact";
 
   return (
-    <article className={`group overflow-hidden rounded-2xl border border-border-subtle bg-surface transition duration-300 hover:-translate-y-1 hover:border-accent/40 hover:shadow-2xl hover:shadow-blue-950/20 ${isCompact ? "h-full" : ""}`}>
+    <article
+      className={`group cursor-pointer overflow-hidden rounded-2xl border border-border-subtle bg-surface transition duration-300 hover:-translate-y-1 hover:border-accent/40 hover:shadow-2xl hover:shadow-blue-950/20 ${isCompact ? "h-full" : ""}`}
+      onClick={() => onOpen(project)}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onOpen(project);
+        }
+      }}
+      role="button"
+      tabIndex={0}
+      aria-label={`Ver detalhes de ${project.title}`}
+    >
       <div className="relative aspect-video overflow-hidden bg-slate-800">
         {!imageError && (
           <Image
@@ -38,16 +49,23 @@ export function ProjectCard({ project, variant = "featured" }: ProjectCardProps)
         {project.badge && <span className="mb-4 inline-flex rounded-full border border-accent/25 bg-accent/10 px-2.5 py-1 text-xs font-medium text-blue-200">{project.badge}</span>}
         <p className="mb-2 text-sm font-medium text-accent">{project.subtitle}</p>
         <h3 className={`${isCompact ? "text-lg" : "text-xl"} font-semibold text-text-primary`}>{project.title}</h3>
-        <p className={`${isCompact ? "mt-2 line-clamp-2" : "mt-3 line-clamp-4"} text-sm leading-6 text-text-secondary`}>{project.description}</p>
+        <div className={`relative ${isCompact ? "mt-2 h-14" : "mt-3 h-24"} overflow-hidden`}>
+          <p className={`${isCompact ? "line-clamp-2" : "line-clamp-4"} text-sm leading-6 text-text-secondary`}>{project.description}</p>
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-surface to-transparent" />
+        </div>
         <div className="mt-5 flex flex-wrap gap-2">
           {project.tags.map((tag) => <span key={tag} className="rounded-full border border-border-subtle px-2.5 py-1 text-xs text-text-secondary">{tag}</span>)}
         </div>
-        {(project.githubUrl || project.liveUrl) && (
-          <div className="mt-6 flex items-center gap-4">
-            <a href={project.liveUrl ?? project.githubUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-medium text-text-primary transition hover:text-accent">Ver detalhes <ArrowUpRight size={16} /></a>
-            {project.githubUrl && <a aria-label={`GitHub de ${project.title}`} href={project.githubUrl} target="_blank" rel="noreferrer" className="text-text-secondary transition hover:text-text-primary"><GithubIcon width={17} height={17} /></a>}
-          </div>
-        )}
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            onOpen(project);
+          }}
+          className="mt-6 inline-flex items-center rounded-lg border border-accent/40 px-4 py-2 text-sm font-medium text-text-primary transition hover:border-accent hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent"
+        >
+          Ver mais detalhes
+        </button>
       </div>
     </article>
   );

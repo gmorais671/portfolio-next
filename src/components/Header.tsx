@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "./Icons";
 
@@ -6,8 +9,54 @@ const linkedinUrl =
   "https://www.linkedin.com/in/gabriel-morais-marcondes-flutter-fullstack/";
 
 export function Header() {
+  const [isVisible, setIsVisible] = useState(true);
+  const lastScrollY = useRef(0);
+  const navigationTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (navigationTimeout.current) return;
+
+      if (currentScrollY < 80) {
+        setIsVisible(true);
+      } else if (currentScrollY > lastScrollY.current) {
+        setIsVisible(false);
+      } else {
+        setIsVisible(true);
+      }
+
+      lastScrollY.current = currentScrollY;
+    };
+
+    const handleInternalNavigation = (event: MouseEvent) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+
+      const link = target.closest<HTMLAnchorElement>("a[href^='#']");
+      if (!link) return;
+
+      setIsVisible(false);
+      lastScrollY.current = window.scrollY;
+      navigationTimeout.current = setTimeout(() => {
+        navigationTimeout.current = null;
+        lastScrollY.current = window.scrollY;
+      }, 800);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    document.addEventListener("click", handleInternalNavigation);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      document.removeEventListener("click", handleInternalNavigation);
+      if (navigationTimeout.current) clearTimeout(navigationTimeout.current);
+    };
+  }, []);
+
   return (
-    <header className="sticky top-0 z-50 border-b border-border-subtle bg-background/80 backdrop-blur-xl">
+    <header className={`fixed inset-x-0 top-0 z-50 border-b border-border-subtle bg-background/80 backdrop-blur-xl transition-transform duration-300 ${isVisible ? "translate-y-0" : "-translate-y-full"}`}>
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
         <a href="#inicio" className="text-lg font-semibold tracking-tight text-text-primary">
           Gabriel<span className="text-accent"> M.</span>
