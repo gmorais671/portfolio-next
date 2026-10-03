@@ -1,30 +1,6 @@
 import Image from "next/image";
-
-export function AboutSection() {
-  return (
-    <section id="sobre" className="mx-auto grid max-w-6xl scroll-mt-24 gap-12 px-4 py-24 lg:grid-cols-[3fr_2fr] lg:items-center">
-      <div>
-        <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-accent">Sobre mim</p>
-        <h2 className="text-3xl font-semibold tracking-tight text-text-primary sm:text-4xl">Engenharia com visão de produto.</h2>
-        <div className="mt-6 space-y-5 text-base leading-8 text-text-secondary">
-          <p>Sou Engenheiro de Controle e Automação e Software Engineer, com mais de 5 anos criando sistemas que conectam pessoas, processos e dados em operações reais.</p>
-          <p>Minha trajetória combina pensamento sistêmico, domínio de software e curiosidade por entender o problema antes de escrever a solução. Hoje, concentro meu trabalho em Next.js, APIs robustas e aplicações Flutter.</p>
-          <p>Gosto de atuar próximo ao produto, transformando requisitos ambíguos em experiências simples, arquiteturas sustentáveis e entregas que geram resultado.</p>
-        </div>
-      </div>
-      <div className="relative mx-auto flex aspect-square w-full max-w-sm items-center justify-center overflow-hidden rounded-3xl border border-border-subtle bg-surface p-8 shadow-2xl shadow-blue-950/30">
-        <div className="absolute inset-8 rounded-2xl border border-accent/20 bg-gradient-to-br from-accent/20 via-transparent to-transparent" />
-        <div className="relative h-full w-full overflow-hidden rounded-2xl border border-white/10 bg-slate-900/60">
-          <Image
-            src="/profile/gabriel-morais.png"
-            alt="Gabriel Morais Marcondes"
-            fill
-            sizes="(max-width: 768px) 80vw, 320px"
-            className="object-cover"
-            priority
-          />
-        </div>
-      </div>
-    </section>
-  );
+import { getDictionary, type Locale } from "@/data/translations";
+export function AboutSection({ locale }: { locale: Locale }) {
+  const t = getDictionary(locale).about;
+  return <section id="sobre" className="section-shell section-space about-section"><div><h2>{t.title}</h2><div className="about-text">{t.paragraphs.map((p) => <p key={p}>{p}</p>)}</div><h3 className="history-title">{t.history}</h3><dl className="history-list"><div><dt>{t.consulting}<span>{t.consultingPeriod}</span></dt><dd>{t.consultingBody}</dd></div><div><dt>Sanorte<span>{locale === "pt" ? "Ago 2025 – Mar 2026" : "Aug 2025 – Mar 2026"}</span></dt><dd>{t.sanorteBody}</dd></div><div><dt>Sinapse<span>{locale === "pt" ? "Nov 2022 – Jul 2025" : "Nov 2022 – Jul 2025"}</span></dt><dd>{t.sinapseBody}</dd></div></dl></div><div className="profile-image"><Image src="/profile/gabriel-morais.png" alt="Gabriel Morais Marcondes" fill sizes="(max-width: 760px) 85vw, 360px" className="object-cover" /></div></section>;
 }

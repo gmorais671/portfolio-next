@@ -1,77 +1,31 @@
 "use client";
+import { useState } from "react";
+import { usePathname } from "next/navigation";
+import { Menu, X } from "lucide-react";
+import { getDictionary, type Locale } from "@/data/translations";
 
-import { useEffect, useRef, useState } from "react";
-import { ArrowUpRight } from "lucide-react";
-import { GithubIcon, LinkedinIcon } from "./Icons";
-
-const githubUrl = "https://github.com/gmorais671";
-const linkedinUrl =
-  "https://www.linkedin.com/in/gabriel-morais-marcondes-flutter-fullstack/";
-
-export function Header() {
-  const [isVisible, setIsVisible] = useState(true);
-  const lastScrollY = useRef(0);
-  const navigationTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-
-      if (navigationTimeout.current) return;
-
-      if (currentScrollY < 80) {
-        setIsVisible(true);
-      } else if (currentScrollY > lastScrollY.current) {
-        setIsVisible(false);
-      } else {
-        setIsVisible(true);
-      }
-
-      lastScrollY.current = currentScrollY;
-    };
-
-    const handleInternalNavigation = (event: MouseEvent) => {
-      const target = event.target;
-      if (!(target instanceof Element)) return;
-
-      const link = target.closest<HTMLAnchorElement>("a[href^='#']");
-      if (!link) return;
-
-      setIsVisible(false);
-      lastScrollY.current = window.scrollY;
-      navigationTimeout.current = setTimeout(() => {
-        navigationTimeout.current = null;
-        lastScrollY.current = window.scrollY;
-      }, 800);
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    document.addEventListener("click", handleInternalNavigation);
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      document.removeEventListener("click", handleInternalNavigation);
-      if (navigationTimeout.current) clearTimeout(navigationTimeout.current);
-    };
-  }, []);
-
-  return (
-    <header className={`fixed inset-x-0 top-0 z-50 border-b border-border-subtle bg-background/80 backdrop-blur-xl transition-transform duration-300 ${isVisible ? "translate-y-0" : "-translate-y-full"}`}>
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-        <a href="#inicio" className="text-lg font-semibold tracking-tight text-text-primary">
-          Gabriel<span className="text-accent"> M.</span>
-        </a>
-        <nav aria-label="Navegação principal" className="hidden items-center gap-8 md:flex">
-          <a className="text-sm text-text-secondary transition hover:text-text-primary" href="#projetos">Projetos</a>
-          <a className="text-sm text-text-secondary transition hover:text-text-primary" href="#sobre">Sobre</a>
-          <a className="text-sm text-text-secondary transition hover:text-text-primary" href="#contato">Contato</a>
-        </nav>
-        <div className="flex items-center gap-3">
-          <a aria-label="GitHub" className="rounded-full p-2 text-text-secondary transition hover:bg-white/5 hover:text-text-primary" href={githubUrl} target="_blank" rel="noreferrer"><GithubIcon width={18} height={18} /></a>
-          <a aria-label="LinkedIn" className="rounded-full p-2 text-text-secondary transition hover:bg-white/5 hover:text-text-primary" href={linkedinUrl} target="_blank" rel="noreferrer"><LinkedinIcon width={18} height={18} /></a>
-          <a className="hidden items-center gap-1 text-sm font-medium text-accent sm:flex" href="#contato">Vamos conversar <ArrowUpRight size={15} /></a>
+export function Header({ locale }: { locale: Locale }) {
+  const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  const t = getDictionary(locale).nav;
+  const other = locale === "pt" ? "en" : "pt";
+  const alternate = pathname.replace(/^\/(pt|en)(?=\/|$)/, `/${other}`);
+  const items = [["projetos", t.cases], ["sistemas", t.systems], ["sobre", t.about], ["contato", t.contact]];
+  return <>
+    <a className="skip-link" href="#main-content">{t.skip}</a>
+    <header className="site-header">
+      <div className="header-inner">
+        <a href={`/${locale}`} className="brand">Gabriel Morais<span>Software Engineer</span></a>
+        <nav className="desktop-nav" aria-label={t.menu}>{items.map(([id, title]) => <a key={id} href={`/${locale}#${id}`}>{title}</a>)}</nav>
+        <div className="header-actions">
+          <nav className="language-switch" aria-label={t.language}>
+            <span aria-current="true" lang={locale === "pt" ? "pt-BR" : "en"}>{locale === "pt" ? "Português" : "English"}</span>
+            <a href={alternate} lang={other === "pt" ? "pt-BR" : "en"} hrefLang={other === "pt" ? "pt-BR" : "en"} onClick={(event) => { event.preventDefault(); window.location.assign(alternate + window.location.search + window.location.hash); }}>{other === "pt" ? "Português" : "English"}</a>
+          </nav>
+          <button className="mobile-menu-button" aria-label={t.menu} aria-expanded={open} aria-controls="mobile-navigation" onClick={() => setOpen(!open)}>{open ? <X size={22} /> : <Menu size={22} />}</button>
         </div>
       </div>
+      {open && <nav id="mobile-navigation" className="mobile-nav" aria-label={t.menu}>{items.map(([id, title]) => <a key={id} href={`/${locale}#${id}`} onClick={() => setOpen(false)}>{title}</a>)}</nav>}
     </header>
-  );
+  </>;
 }

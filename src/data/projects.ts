@@ -1,165 +1,117 @@
+import type { Locale } from "./translations";
+type Localized = Record<Locale, string>;
+const c = (pt: string, en: string): Localized => ({ pt, en });
 export interface Project {
-  id: string;
-  title: string;
-  subtitle: string;
-  description: string;
-  longDescription: string;
-  role?: string;
-  tags: string[];
-  image: string;
-  featured: boolean;
-  badge?: string;
-  githubUrl?: string;
-  liveUrl?: string;
-  linkedinUrl?: string;
+  id: string; title: Localized; subtitle: Localized; description: Localized;
+  role: Localized; tags: string[]; image?: string; featured: boolean;
+  status: Localized; delivery: Localized;
+  sections: { title: Localized; body: Localized }[];
+  evidence?: { label: Localized; url: string }[];
+  source: string[];
 }
 
+// Facts: workspace-root/gabriel_morais_master_brag_document_v2.md.
+// Featured placement is independent of delivery status. Unknown URLs and metrics are omitted.
 export const projects: Project[] = [
   {
-    id: "gestao-clinica",
-    title: "StepCare - Gestão Clínica & Prontuário",
-    subtitle: "Plataforma Full-Stack para acompanhamento de pacientes e consultas",
-    description:
-      "Produto autoral criado para digitalizar o acompanhamento clínico de residentes em um lar de idosos, substituindo registros em papel por uma base estruturada de pacientes, consultas, alergias e comorbidades.",
-    longDescription:
-      "O StepCare nasceu a partir de um problema real observado em um lar de idosos, onde o acompanhamento de informações clínicas e consultas era realizado em papel. Esse processo criava riscos de perda de dados, dificuldade de consulta ao histórico e falta de centralização das informações.\n\nAlém de investigar uma solução para esse cenário, o projeto foi uma oportunidade de desenvolver um produto completo de forma independente, desde a concepção até o deploy. A aplicação possui autenticação, cadastro de pacientes, registro e histórico de consultas, além do controle de alergias e comorbidades.\n\nO aplicativo foi desenvolvido em Flutter com build para Windows. A camada de API foi construída em Node.js com Next.js, utilizando Prisma como ORM e PostgreSQL como banco de dados. A API e o banco foram publicados na DigitalOcean, representando meu primeiro deploy completo de infraestrutura em nuvem.\n\nO projeto permanece como um MVP funcional e possui potencial para evoluir para um produto SaaS voltado à gestão clínica e ao acompanhamento de pacientes.",
-    role: "Desenvolvedor único — concepção do produto, desenvolvimento mobile, API, modelagem de dados e deploy.",
-    tags: [
-      "Flutter",
-      "Node.js",
-      "Next.js",
-      "TypeScript",
-      "Prisma",
-      "PostgreSQL",
-      "DigitalOcean",
+    id: "barbershop-platform",
+    title: c("Gestão e Agendamento para Barbearias", "Barbershop Management & Booking Platform"),
+    subtitle: c("Produto full-stack multi-tenant", "Multi-tenant full-stack product"),
+    description: c("Gestão interna e agendamento público conectados a FastAPI e PostgreSQL. Ownership da modelagem de tenants e fusos horários ao deploy em VPS.", "Internal management and public booking connected to FastAPI and PostgreSQL. Ownership from tenant and timezone modeling through VPS deployment."),
+    role: c("Produto, arquitetura, interfaces Flutter Web, integração da landing Next.js, backend, banco de dados e deploy.", "Product, architecture, Flutter Web interfaces, Next.js landing integration, backend, database and deployment."),
+    tags: ["Flutter Web", "FastAPI", "PostgreSQL", "Next.js", "Docker"], featured: true,
+    status: c("API em produção", "API in production"),
+    delivery: c("API colocada em produção na semana de 3 de outubro de 2026. A disponibilidade atual de todas as interfaces e uma URL pública não estão registradas.", "API put into production in the week of October 3, 2026. Current availability of all interfaces and a public URL are not recorded."),
+    source: ["PROJ-002", "4.0", "16"],
+    sections: [
+      { title: c("Contexto e solução", "Context and solution"), body: c("Plataforma para operação de barbearias e agendamento de clientes. O ERP Flutter Web reúne equipe, serviços, horários e agendamentos; uma SPA pública Flutter Web resolve a barbearia por slug e permite reservar sem login. A landing Next.js direciona o visitante para esse fluxo.", "A platform for barbershop operations and customer booking. The Flutter Web ERP covers teams, services, working hours and appointments; a public Flutter Web SPA resolves the shop by slug and accepts bookings without login. The Next.js landing directs visitors into that flow.") },
+      { title: c("Arquitetura e isolamento", "Architecture and isolation"), body: c("Monólito modular em Python/FastAPI, contratos Pydantic, persistência SQLAlchemy/psycopg e migrações Alembic. Tabelas PostgreSQL compartilhadas com isolamento lógico por tenant_id. JWT protege os fluxos internos; papel e tenant vêm do usuário persistido. Os fluxos públicos validam a associação entre tenant, serviço e profissional.", "A modular Python/FastAPI monolith, Pydantic contracts, SQLAlchemy/psycopg persistence and Alembic migrations. Shared PostgreSQL tables use logical tenant_id isolation. JWT protects internal flows; role and tenant come from the persisted user. Public flows validate tenant, service and barber associations.") },
+      { title: c("Agendamento e fusos horários", "Scheduling and timezones"), body: c("A disponibilidade considera horários de trabalho, intervalos, duração do serviço e reservas existentes. Cada tenant tem um fuso IANA: apresentação no horário local e persistência/comparação em UTC. No ERP, Riverpod, go_router e Dio apoiam a organização por funcionalidades.", "Availability considers working hours, breaks, service duration and existing appointments. Each tenant has an IANA timezone: display in local time and persistence/comparison in UTC. Riverpod, go_router and Dio support a feature-oriented ERP structure.") },
+      { title: c("Entrega e resultado", "Delivery and outcome"), body: c("API e PostgreSQL em Docker Compose em VPS DigitalOcean, com Nginx e migrações versionadas. O produto combina gestão interna com agendamento público e um modelo reutilizável de tenants. O backend foi colocado em produção; não há números registrados de clientes, reservas ou receita.", "API and PostgreSQL deployed with Docker Compose on a DigitalOcean VPS, with Nginx and versioned migrations. The product combines internal management with public booking and a reusable tenant model. The backend was put into production; no customer, booking or revenue figures are recorded.") },
+      { title: c("Qualidade e próximos passos", "Quality and next steps"), body: c("Existem testes backend para isolamento e agendamentos, além de testes Flutter. Os testes backend usam SQLite em memória e não provam comportamento específico do PostgreSQL. Garantias transacionais contra reservas concorrentes, testes PostgreSQL, revisão de autorização, validação de horários no servidor e CI/CD são próximos passos, ainda não concluídos.", "Backend tests cover isolation and appointments, alongside Flutter tests. Backend tests use in-memory SQLite and do not prove PostgreSQL-specific behavior. Transactional safeguards against concurrent bookings, PostgreSQL tests, authorization review, server-side slot validation and CI/CD are next steps, not completed capabilities.") },
     ],
-    image: "/projects/stepcare.png",
-    featured: true,
-    badge: "MVP Funcional / Full-Stack",
-    githubUrl: "https://github.com/gmorais671/Healthcare-Management-Project",
   },
   {
-    id: "ola-cliente",
-    title: "Olá Cliente",
-    subtitle: "Produto Mobile com Múltiplas Jornadas e Recursos em Tempo Real",
-    description:
-      "Atuação no desenvolvimento de aplicativo para o setor de telecomunicações, envolvendo ordens de serviço, suporte, rastreamento de técnicos, mensageria e integrações em tempo real.",
-    longDescription:
-      "O Olá Cliente foi desenvolvido na Synapse Informática, empresa que cria soluções para operadoras de internet, telecomunicações e telefonia. Foi meu primeiro trabalho CLT como desenvolvedor e também a experiência em que consolidei minha base prática no desenvolvimento mobile.\n\nEntrei como desenvolvedor júnior e único responsável pelo desenvolvimento em Flutter, em uma equipe composta majoritariamente por profissionais de Kotlin, Java e C#/.NET. O produto estava especificado, mas ainda não havia sido iniciado. Participei da estruturação inicial do projeto, incluindo a criação de protótipos no Figma para apoiar o alinhamento das reuniões e o desenvolvimento das jornadas do aplicativo.\n\nAo longo da evolução do produto, trabalhei com recursos como Google Maps, chatbot, integração com APIs, comunicação por WebSockets e rastreamento de técnicos. Também participei da implementação de uma API responsável pelo cálculo de polylines utilizadas na visualização de trajetos.\n\nAlém do aplicativo principal, dei suporte a outros sistemas da empresa em Kotlin e integrações com APIs em .NET. A arquitetura MVC foi adotada para manter consistência com o padrão já utilizado internamente.",
-    role: "Desenvolvedor Flutter — desenvolvimento do aplicativo, integrações em tempo real e suporte a sistemas existentes.",
-    tags: [
-      "Flutter",
-      "Dart",
-      "REST APIs",
-      "WebSockets",
-      "Google Maps",
-      "Polylines",
-      "MVC",
+    id: "ola-cliente", title: c("Olá Cliente", "Olá Cliente"),
+    subtitle: c("Ownership mobile do início à entrega", "Mobile ownership from inception to delivery"),
+    description: c("Aplicativo de telecom desenvolvido do zero como principal desenvolvedor Flutter: suporte, localização em tempo real, mapas e integrações relacionadas a pagamentos.", "Telecom application built from scratch as the principal Flutter developer: support, real-time location, maps and payment-related integrations."),
+    role: c("Principal desenvolvedor Flutter na Sinapse, colaboração direta com o Product Owner e suporte em Kotlin e ASP.NET.", "Principal Flutter developer at Sinapse, working directly with the Product Owner and supporting Kotlin and ASP.NET systems."),
+    tags: ["Flutter", "REST APIs", "WebSockets", "Google Maps", "Provider"], image: "/projects/ola-cliente.png", featured: true,
+    status: c("Entrega e suporte do produto", "Product delivery and support"),
+    delivery: c("Desenvolvido de novembro de 2022 a julho de 2025, com preparação para produção e suporte continuado. Disponibilidade atual não registrada.", "Developed from November 2022 to July 2025, including production readiness and continued support. Current availability is not recorded."), source: ["PROJ-005", "EXP-005"],
+    sections: [
+      { title: c("Contexto", "Context"), body: c("A Sinapse precisava de um produto mobile completo para provedores e clientes de telecomunicações, reunindo atendimento, serviço e funcionalidades relacionadas à conta e a pagamentos.", "Sinapse needed a complete mobile product for telecom providers and customers, bringing together support, service, account and payment-related flows.") },
+      { title: c("Minha contribuição", "My contribution"), body: c("Construí o aplicativo do zero e assumi a implementação e evolução das funcionalidades Flutter. Trabalhei diretamente com o Product Owner para alinhar requisitos e entregas. Também apoiei um aplicativo Android legado em Kotlin e APIs ASP.NET quando necessário.", "I built the application from scratch and owned the implementation and evolution of Flutter features. I worked directly with the Product Owner to align requirements and delivery. I also supported a legacy Kotlin Android application and ASP.NET APIs when needed.") },
+      { title: c("Decisões e integrações", "Decisions and integrations"), body: c("Flutter/Dart com Provider/Notifiers, GetIt e separação de responsabilidades. REST e WebSockets conectam serviço, chat, localização em tempo real e rastreamento de técnicos. Google Maps/polylines, Firebase, integrações de pagamento e práticas de CI/CD fazem parte do trabalho.", "Flutter/Dart with Provider/Notifiers, GetIt and separation of responsibilities. REST and WebSockets connect service, chat, real-time location and technician tracking. Google Maps/polylines, Firebase, payment-related integrations and CI/CD practices are part of the work.") },
+      { title: c("Entrega e resultado", "Delivery and outcome"), body: c("O Olá Cliente tornou-se o primeiro produto Flutter/mobile completo da Sinapse e ampliou sua capacidade de oferecer uma experiência mobile a clientes B2B de telecom. O documento registra preparação para produção e suporte, sem métricas de usuários, downloads ou redução de chamados.", "Olá Cliente became Sinapse's first complete Flutter/mobile product and expanded its ability to offer a mobile experience to B2B telecom customers. The source records production readiness and support, without user, download or ticket-reduction metrics.") },
     ],
-    image: "/projects/ola-cliente.png",
-    featured: true,
-    badge: "Produto Mobile",
   },
   {
-    id: "transformacao-operacoes",
-    title: "Transformação Digital — Sanorte",
-    subtitle: "ERP interno e digitalização de operações de campo para projetos Sabesp",
-    description:
-      "Atuação em iniciativas de modernização de ERP e digitalização de fluxos operacionais, incluindo aplicativo de campo com assinatura digital, API em PHP, RBAC e integração com sistemas de RH.",
-    longDescription:
-      "Na Sanorte, empresa de serviços de saneamento que atua em projetos parceiros da Sabesp, trabalhei como desenvolvedor full-stack em iniciativas de digitalização operacional e reconstrução de bases para um ERP interno. O principal desafio era atuar em um contexto com baixa padronização técnica e sem acesso direto ao código legado do ERP, que permanecia sob responsabilidade de outro desenvolvedor.\n\nA partir de reuniões com as equipes internas e empresas parceiras, desenvolvi um aplicativo Flutter para substituir o preenchimento e a assinatura manual de documentos relacionados à adesão a um programa de expansão. A solução permitia o preenchimento de formulários e a captura de assinatura digital pelo celular, apoiada por uma API REST em PHP e banco de dados próprios. O aplicativo chegou à etapa de testes, mas foi descontinuado por decisão interna.\n\nTambém iniciei a estruturação de uma nova base para o ERP em PHP, desenvolvendo autenticação, layout inicial e um modelo de controle de acesso baseado em RBAC. Entre as funcionalidades criadas, está uma visualização de organograma em árvore para consulta da hierarquia organizacional, com interação de arrastar e soltar.\n\nOutra entrega foi a integração da API em PHP com a API da Ponto Mais, plataforma utilizada pela empresa para processos de RH. Mesmo com projetos interrompidos ao longo do período, a experiência foi importante para desenvolver autonomia, levantamento de requisitos e tomada de decisões técnicas em cenários pouco estruturados.",
-    role: "Desenvolvedor full-stack — aplicativo Flutter, APIs PHP, integração externa e estruturação de módulos para ERP.",
-    tags: [
-      "Flutter",
-      "PHP",
-      "MySQL",
-      "REST API",
-      "RBAC",
-      "Assinatura Digital",
-      "Integrações",
+    id: "sanorte", title: c("Sanorte — Transformação Digital", "Sanorte — Digital Transformation"),
+    subtitle: c("Legado, autorização e operação offline", "Legacy systems, authorization and offline operations"),
+    description: c("Uma suíte de iniciativas: modernização PHP, autorização hierárquica no Atlasware e aplicativo de campo offline-first com API REST.", "A suite of initiatives: PHP modernization, hierarchical authorization in Atlasware and an offline-first field application with a REST API."),
+    role: c("Desenvolvedor full-stack, agosto de 2025 a março de 2026: modernização, APIs, autorização e aplicação Flutter.", "Full-stack developer, August 2025 to March 2026: modernization, APIs, authorization and Flutter application."),
+    tags: ["PHP 8", "Flutter", "MySQL", "SQLite", "RBAC"], image: "/projects/sanorte.png", featured: true,
+    status: c("MVP de campo entregue", "Field MVP delivered"),
+    delivery: c("MVP de campo entregue em aproximadamente três semanas. Isso não estabelece que toda a suíte esteja atualmente em produção.", "Field MVP delivered in approximately three weeks. This does not establish that the entire suite is currently in production."), source: ["EXP-006", "PROJ-003", "PROJ-004"],
+    evidence: [{ label: c("Discussão técnica sobre Atlasware/RBAC", "Atlasware/RBAC technical discussion"), url: "https://pt.linkedin.com/posts/gabriel-morais-marcondes_atlasware-softwarearchitecture-php8-activity-7434978183109836800-8nzm" }],
+    sections: [
+      { title: c("Modernização do legado", "Legacy modernization"), body: c("Participei da evolução de um ambiente com cerca de 14 anos de história, de código da era PHP 5 em direção ao PHP 8. O trabalho combinou modernização com novas APIs e fluxos operacionais no contexto do sistema existente.", "I contributed to evolving an environment with roughly 14 years of history, moving PHP 5-era code toward PHP 8. The work combined modernization with new APIs and operational workflows within the existing system's context.") },
+      { title: c("Atlasware: autorização como domínio", "Atlasware: authorization as a domain"), body: c("Desenvolvi RBAC customizado com papéis, hierarquia e delegação: usuários não podem conceder permissões que não possuem. O modelo organiza acesso por módulos, equipes e cargos, com rastreabilidade de mudanças. A intenção foi centralizar governança em vez de depender de permissões individuais dispersas.", "I developed custom RBAC with roles, hierarchy and delegation: users cannot grant permissions they do not possess. The model organizes access by modules, teams and positions, with change traceability. The goal was centralized governance rather than scattered per-user permissions.") },
+      { title: c("Aplicação de campo offline-first", "Offline-first field application"), body: c("Flutter com SQLite, API REST PHP/MySQL e sincronização quando a conexão está disponível. Os fluxos incluem GPS, fotos, assinatura digital, documentos/PDF e integrações com sistemas empresariais e de RH. JWT e RBAC apoiam o acesso protegido.", "Flutter with SQLite, a PHP/MySQL REST API and synchronization when connectivity is available. Flows include GPS, photos, digital signatures, documents/PDFs and enterprise and HR integrations. JWT and RBAC support protected access.") },
+      { title: c("Entrega e resultado", "Delivery and outcome"), body: c("O MVP foi entregue em aproximadamente três semanas, digitalizando execução e reduzindo dependência de papel em conectividade limitada. A autorização criou uma base mais estruturada para governança. Não há métricas registradas de usuários, tempo economizado ou redução de papel.", "The MVP was delivered in approximately three weeks, digitizing execution and reducing reliance on paper under limited connectivity. Authorization established a more structured governance foundation. No user counts, time savings or paper-reduction metrics are recorded.") },
     ],
-    image: "/projects/sanorte.png",
-    featured: true,
-    badge: "Impacto & Escala",
   },
   {
-    id: "pesquisa-socioeconomica",
-    title: "Pesquisa Socioeconômica (URBSocial)",
-    subtitle: "Aplicativo de campo offline para coleta e exportação de dados",
-    description:
-      "Aplicativo Flutter para substituir formulários em papel em pesquisas socioeconômicas realizadas em campo, com persistência local em SQLite e exportação dos dados para Excel.",
-    longDescription:
-      "A aplicação foi desenvolvida para a URBSocial, empresa que realiza pesquisas socioeconômicas em comunidades e áreas de campo. O objetivo era substituir o uso de formulários em papel, vulneráveis a chuva, extravio e erros de preenchimento, além de reduzir a dependência de conectividade em regiões com sinal instável ou inexistente.\n\nO aplicativo foi construído em Flutter para funcionar sem necessidade de conexão com a internet durante a coleta. Os pesquisadores podem preencher o formulário socioeconômico, registrar sua identificação e manter as respostas salvas localmente no dispositivo.\n\nA persistência foi implementada com SQLite, incluindo a modelagem dos dados das pesquisas. Depois da coleta, o próprio aplicativo gera uma planilha Excel com os dados registrados, permitindo que cada pesquisador compartilhe o arquivo para consolidação posterior pela equipe responsável.\n\nO projeto demonstra a aplicação de uma solução mobile simples e adequada às restrições reais de uma operação de campo: funcionamento offline, armazenamento local confiável e exportação prática dos resultados.",
-    role: "Desenvolvedor único — aplicativo Flutter, modelagem local com SQLite e exportação para Excel.",
-    tags: [
-      "Flutter",
-      "SQLite",
-      "Offline",
-      "Formulários",
-      "Exportação Excel",
+    id: "thermal-printing", title: c("Pacote de Impressão Térmica", "Thermal Printing Package"), subtitle: c("Flutter, código nativo e hardware", "Flutter, native code and hardware"),
+    description: c("Pacote isolado com Flutter, Kotlin e ZXing para imprimir códigos de barras legíveis em hardware térmico.", "An isolated Flutter, Kotlin and ZXing package for readable barcodes on thermal hardware."),
+    role: c("Arquitetura do pacote, investigação técnica e integração nativa validada em hardware.", "Package architecture, technical investigation and hardware-validated native integration."),
+    tags: ["Flutter", "Kotlin", "ZXing", "MethodChannels", "Bluetooth"], image: "/projects/plugin-impressao.png", featured: false,
+    status: c("Validado em hardware", "Hardware validated"), delivery: c("Saída física validada com aplicação de teste isolada; modelos suportados e adoção não quantificados.", "Physical output validated with an isolated test application; supported models and adoption are not quantified."), source: ["PROJ-007"],
+    evidence: [{ label: c("Discussão técnica da integração", "Integration technical discussion"), url: "https://pt.linkedin.com/posts/gabriel-morais-marcondes-flutter-fullstack_flutter-dart-kotlin-activity-7465058883447783426-uvGh" }],
+    sections: [
+      { title: c("Problema e restrições", "Problem and constraints"), body: c("Um documento de pagamento precisava de código de barras opticamente legível. Sem acesso ao repositório principal, a integração precisava evoluir sem bloquear a equipe do produto.", "A payment document needed an optically readable barcode. Without access to the main repository, the integration had to evolve without blocking the product team.") },
+      { title: c("Decisão técnica e resultado", "Technical decision and outcome"), body: c("Após abordagens Dart/ESC-POS e funções nativas que não atenderam à leitura óptica, usei ZXing em Kotlin para gerar a imagem com densidade adequada. MethodChannels conecta Flutter ao nativo; Dart envia o conteúdo rasterizado por Bluetooth. A API pequena isola a complexidade e a saída foi validada em hardware.", "After Dart/ESC-POS approaches and native functions failed optical-reading requirements, I used ZXing in Kotlin to generate imagery at the required density. MethodChannels connects Flutter to native code; Dart sends rasterized content over Bluetooth. A small API isolates complexity and the output was validated on hardware.") },
     ],
-    image: "/projects/coleta.png",
-    featured: false,
-    githubUrl: "https://github.com/gmorais671/socioquest",
   },
   {
-    id: "plugin-impressao-termica",
-    title: "Plugin Nativo de Impressão Térmica",
-    subtitle: "Integração de aplicativos Flutter com impressoras térmicas",
-    description:
-      "Plugin para conectar aplicações Flutter a impressoras térmicas e gerar comprovantes de cobrança com layout semelhante a boleto, atendendo a uma necessidade específica de operação em campo.",
-    longDescription:
-      "Este projeto surgiu da necessidade de integrar um aplicativo mobile a uma impressora térmica em uma operação de distribuição. O requisito não era emitir apenas uma nota simples com código de barras, mas gerar um comprovante visualmente organizado, com estrutura semelhante à de um boleto — sem se tratar de um documento bancário oficial.\n\nDesenvolvi um plugin para permitir a comunicação entre aplicativos Flutter e impressoras térmicas, responsável por estruturar os dados e montar o layout de impressão de acordo com a necessidade apresentada pelo cliente.\n\nO projeto envolveu integração com hardware e aplicação prática de princípios de Clean Architecture, buscando manter a solução desacoplada, organizada e mais simples de evoluir. A experiência reforçou minha capacidade de trabalhar com necessidades que ultrapassam interfaces mobile convencionais, conectando software e dispositivos físicos.",
-    role: "Desenvolvedor único — arquitetura do plugin e integração entre aplicativo Flutter e hardware de impressão.",
-    tags: [
-      "Flutter",
-      "Impressão Térmica",
-      "Bluetooth",
-      "Hardware",
-      "Clean Architecture",
+    id: "field-research", title: c("URBSocial — Pesquisa de Campo", "URBSocial — Field Research"), subtitle: c("Coleta offline e entrega em sete dias", "Offline collection delivered in seven days"),
+    description: c("Coleta socioeconômica com SQLite, GPS e exportação Excel/CSV diretamente do dispositivo.", "Socioeconomic collection with SQLite, GPS and on-device Excel/CSV export."),
+    role: c("Flutter, modelagem local, formulários, validação e exportação.", "Flutter, local modeling, forms, validation and export."), tags: ["Flutter", "SQLite", "GPS", "Excel/CSV"], image: "/projects/coleta.png", featured: false,
+    status: c("Entregue em cerca de sete dias", "Delivered in about seven days"), delivery: c("Entrega em dezembro de 2025, em aproximadamente sete dias; uso atual não registrado.", "Delivered in December 2025, in approximately seven days; current use is not recorded."), source: ["PROJ-006"],
+    sections: [
+      { title: c("Contexto e solução", "Context and solution"), body: c("Pesquisas em papel dificultavam coleta e consolidação em conectividade limitada. Desenvolvi Flutter offline-first com formulários estruturados, validação, SQLite e GPS. Excel/CSV é exportado no dispositivo; sincronização backend é uma possibilidade futura, não uma funcionalidade entregue.", "Paper surveys complicated collection and consolidation under limited connectivity. I developed offline-first Flutter with structured forms, validation, SQLite and GPS. Excel/CSV is exported on-device; backend synchronization is a future possibility, not a delivered feature.") },
+      { title: c("Entrega e resultado", "Delivery and outcome"), body: c("Entregue em aproximadamente sete dias, a solução substituiu coleta em papel e reduziu transcrição e consolidação manual. A dimensão dessa redução não foi quantificada.", "Delivered in approximately seven days, the solution replaced paper collection and reduced manual transcription and consolidation. The size of that reduction has not been quantified.") },
     ],
-    image: "/projects/plugin-impressao.png",
-    featured: false,
-    githubUrl: "https://github.com/gmorais671/thermal-printer-package",
   },
   {
-    id: "gestao-b2b-logistica",
-    title: "Gestão Comercial B2B & Logística (VM Tabacos)",
-    subtitle: "Controle de estoque, compras, vendas, relatórios e impressão",
-    description:
-      "Aplicativo Flutter para apoiar a operação de uma distribuidora, reunindo controle de estoque, compras, vendas, históricos, relatórios e emissão de comprovantes em impressora térmica.",
-    longDescription:
-      "O projeto foi desenvolvido para a VM Tabacos, distribuidora de tabaco e produtos relacionados para bares e outros estabelecimentos. A necessidade era centralizar o controle operacional da empresa em um aplicativo, cobrindo estoque, compras, vendas e geração de relatórios.\n\nDesenvolvi o aplicativo completo em Flutter e integrei a interface ao banco de dados construído por outro desenvolvedor. A solução contempla controle de estoque, registro de vendas e compras, consulta aos históricos dessas operações e relatórios para apoiar o acompanhamento da operação.\n\nTambém implementei a integração do aplicativo com uma impressora térmica. Após uma venda, o sistema gera um comprovante não oficial com o logo da empresa, a lista de produtos adquiridos e um espaço para assinatura do cliente, confirmando o recebimento da compra.\n\nO projeto reuniu controle operacional, geração de relatórios e integração com hardware em uma solução mobile direcionada a uma necessidade concreta de negócio.",
-    role: "Desenvolvedor Flutter — aplicativo operacional, relatórios, integração com banco de dados e impressão térmica.",
-    tags: [
-      "Flutter",
-      "Gestão de Estoque",
-      "Relatórios",
-      "Bluetooth",
-      "Impressão Térmica",
-      "B2B",
+    id: "vm-tabacos", title: c("VM Tabacos — Gestão Comercial", "VM Tabacos — Business Management"), subtitle: c("Uso real por mais de dois anos", "Real use for over two years"),
+    description: c("Estoque, compras, vendas, fluxo de caixa e relatórios em Flutter, com impressão térmica.", "Inventory, purchases, sales, cash flow and reports in Flutter, with thermal printing."),
+    role: c("Aplicativo Flutter e integrações, com parceiro responsável pelo backend/Firebase Functions.", "Flutter application and integrations, partnering with the backend/Firebase Functions developer."), tags: ["Flutter", "Firestore", "Firebase Functions", "Bluetooth"], image: "/projects/vm-tabacos.png", featured: false,
+    status: c("Uso real por mais de dois anos", "Real use for over two years"), delivery: c("Desenvolvido de setembro de 2021 a maio de 2022, com mais de dois anos de uso ativo confirmado. Disponibilidade atual não registrada.", "Developed September 2021 to May 2022, with over two years of confirmed active use. Current availability is not recorded."), source: ["PROJ-008"],
+    sections: [
+      { title: c("Solução e colaboração", "Solution and collaboration"), body: c("Desenvolvi Flutter para gestão comercial de uma distribuidora, com parceiro responsável por backend/Firebase Functions. Catálogo, estoque, compras, vendas, caixa, históricos e relatórios são acompanhados por impressão térmica de comprovantes.", "I developed Flutter business management for a distributor, with a partner responsible for backend/Firebase Functions. Catalog, inventory, purchases, sales, cash flow, history and reports are complemented by thermal receipt printing.") },
+      { title: c("Resultado", "Outcome"), body: c("Uso ativo por mais de dois anos, centralizando processos comerciais e financeiros e permitindo impressão em operação móvel. Volumes de transações e receita não foram registrados.", "Active use for over two years, centralizing commercial and financial processes and enabling printing during mobile operations. Transaction and revenue figures were not recorded.") },
     ],
-    image: "/projects/vm-tabacos.png",
-    featured: false,
   },
   {
-    id: "fuzzy-tcc",
-    title: "Controle de Reservatório por Lógica Fuzzy (TCC)",
-    subtitle: "Engenharia de Automação, inteligência computacional e software",
-    description:
-      "Projeto de controle de nível de tanque de água utilizando lógica Fuzzy em C e CLP, acompanhado por uma interface homem-máquina para visualização e operação da planta.",
-    longDescription:
-      "Este projeto foi desenvolvido como Trabalho de Conclusão de Curso em Engenharia de Controle e Automação, com o objetivo de conectar minha formação em automação à minha atuação em desenvolvimento de software. A proposta foi aplicada à disciplina de Técnicas Avançadas de Controle.\n\nA solução controla o nível de água de um tanque físico. A variável manipulada era a vazão de entrada, controlada por uma bomba, enquanto a saída de água permanecia praticamente constante. Para responder às variações de nível, desenvolvemos um controlador em linguagem C aplicando lógica Fuzzy, uma técnica de inteligência computacional capaz de modelar decisões de controle a partir de regras linguísticas.\n\nTambém foi desenvolvida uma interface homem-máquina na plataforma disponibilizada para o laboratório, permitindo acompanhar e operar a planta. O projeto foi realizado em dupla remota: enquanto meu colega estava na Hungria, eu permaneci no Brasil e atuei diretamente na integração física da solução no laboratório.\n\nMais do que um exercício de automação, o trabalho demonstra a capacidade de desenvolver uma solução de ponta a ponta, combinando controle de processos, programação em baixo nível, integração com hardware e colaboração remota.",
-    role: "Desenvolvimento do controlador em C e integração prática da solução no laboratório — projeto realizado em dupla remota.",
-    tags: [
-      "C",
-      "CLP",
-      "Lógica Fuzzy",
-      "Inteligência Computacional",
-      "Controle de Processos",
-      "Automação Industrial",
+    id: "stepcare", title: c("StepCare — Gestão Clínica", "StepCare — Patient Management"), subtitle: c("Ownership full-stack complementar", "Supporting full-stack ownership"),
+    description: c("API compartilhada, PostgreSQL e clientes Flutter Android/Windows, da descoberta à infraestrutura.", "Shared API, PostgreSQL and Flutter Android/Windows clients, from discovery through infrastructure."),
+    role: c("Descoberta, requisitos, arquitetura, dados, API, autenticação, clientes e infraestrutura.", "Discovery, requirements, architecture, data, API, authentication, clients and infrastructure."), tags: ["Flutter", "Node.js", "TypeScript", "Prisma", "PostgreSQL"], image: "/projects/stepcare.png", featured: false,
+    status: c("Backend hospedado em nuvem", "Cloud-hosted backend"), delivery: c("Projeto independente desde dezembro de 2025, com infraestrutura em nuvem. Adoção e uso atual não registrados.", "Independent project since December 2025, with cloud infrastructure. Adoption and current use are not recorded."), source: ["PROJ-001"],
+    sections: [
+      { title: c("Contexto e ownership", "Context and ownership"), body: c("Um ambiente de cuidado dependia de registros clínicos manuais. Assumi descoberta, definição funcional, arquitetura, dados, API, autenticação, Flutter e infraestrutura. Informações de pacientes e clientes são generalizadas na apresentação pública.", "A care environment depended on manual clinical records. I owned discovery, functional definition, architecture, data, API, authentication, Flutter and infrastructure. Patient and client details are generalized in public materials.") },
+      { title: c("Arquitetura e resultado", "Architecture and outcome"), body: c("API REST Node.js/TypeScript, Next.js e Prisma centraliza regras sobre PostgreSQL. Android e Windows consomem o mesmo backend DigitalOcean. Pacientes, consultas, alergias, comorbidades e acompanhamento clínico ficam estruturados, reduzindo duplicação entre clientes. Adoção e tempo economizado não foram quantificados.", "A Node.js/TypeScript, Next.js and Prisma REST API centralizes rules over PostgreSQL. Android and Windows consume the same DigitalOcean backend. Patients, consultations, allergies, comorbidities and follow-up are structured, reducing duplication between clients. Adoption and time savings have not been quantified.") },
     ],
-    image: "/projects/fuzzy-tcc.png",
-    featured: false,
+  },
+  {
+    id: "reservoir-controller", title: c("Controle de Reservatório por Lógica Fuzzy", "Fuzzy Logic Reservoir Controller"), subtitle: c("Software, automação e validação física", "Software, automation and physical validation"),
+    description: c("Controlador C integrado a CLP e planta de laboratório, como TCC de Engenharia de Controle e Automação.", "C controller integrated with a PLC and laboratory plant, as a Control and Automation Engineering thesis."),
+    role: c("Projeto, C, integração física, testes e ajuste, em colaboração remota.", "Design, C, physical integration, testing and tuning, with remote collaboration."), tags: ["C", "PLC", "Fuzzy Logic"], image: "/projects/fuzzy-tcc.png", featured: false,
+    status: c("Validado em laboratório", "Laboratory validated"), delivery: c("TCC com implementação física, agosto de 2024 a maio de 2025. Projeto acadêmico, distinto de sistema comercial em produção.", "Physically implemented thesis, August 2024 to May 2025. An academic project, distinct from a commercial production system."), source: ["PROJ-009", "9"],
+    sections: [
+      { title: c("Implementação e resultado", "Implementation and outcome"), body: c("Projetei e implementei um controlador Fuzzy em C para um reservatório real, integrando CLP, monitoramento, testes e ajuste. Colaborei com um colega na Hungria enquanto fazia integração física no Brasil. O resultado foi uma implementação completa com comportamento estável e validação prática.", "I designed and implemented a Fuzzy controller in C for a real reservoir, integrating PLC, monitoring, testing and tuning. I collaborated with a teammate in Hungary while performing physical integration in Brazil. The result was a complete implementation with stable behavior and practical validation.") },
+    ],
   },
 ];
+export const getProject = (id: string) => projects.find((project) => project.id === id);
