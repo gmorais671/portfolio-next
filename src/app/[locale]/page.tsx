@@ -8,6 +8,7 @@ import { LiveSystems } from "@/components/LiveSystems";
 import { AboutSection } from "@/components/AboutSection";
 import { ContactSection } from "@/components/ContactSection";
 import { Footer } from "@/components/Footer";
+import { Reveal } from "@/components/Reveal";
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
@@ -16,5 +17,5 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  return <><Header locale={locale} /><main id="main-content"><Hero locale={locale} /><ProjectsSection locale={locale} featured /><LiveSystems locale={locale} /><ProjectsSection locale={locale} /><AboutSection locale={locale} /><ContactSection locale={locale} /></main><Footer locale={locale} /></>;
+  return <><Header locale={locale} /><main id="main-content"><Hero locale={locale} /><Reveal><ProjectsSection locale={locale} featured /><LiveSystems locale={locale} /><ProjectsSection locale={locale} /><AboutSection locale={locale} /><ContactSection locale={locale} /></Reveal></main><Footer locale={locale} /></>;
 }

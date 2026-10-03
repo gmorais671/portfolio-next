@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import { notFound } from "next/navigation";
 import { getDictionary, isLocale, locales } from "@/data/translations";
 import "../globals.css";
 
-const sans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
-const mono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
+// Use the Geist files shipped with the pinned Next.js dependency; no build-time download.
+const sans = localFont({ src: "../../../node_modules/next/dist/next-devtools/server/font/geist-latin.woff2", variable: "--font-geist-sans", weight: "100 900", display: "swap" });
+const mono = localFont({ src: "../../../node_modules/next/dist/next-devtools/server/font/geist-mono-latin.woff2", variable: "--font-geist-mono", weight: "100 900", display: "swap" });
 export function generateStaticParams() { return locales.map((locale) => ({ locale })); }
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;

@@ -2,6 +2,12 @@ import Link from "next/link";
 import { getDictionary, type Locale } from "@/data/translations";
 export function LiveSystems({ locale }: { locale: Locale }) {
   const t = getDictionary(locale).systems;
-  const entries = [{ title: t.production, body: t.productionBody, links: [{ slug: "barbershop-platform", title: locale === "pt" ? "Plataforma para barbearias" : "Barbershop platform" }] }, { title: t.historical, body: t.historicalBody, links: [{ slug: "vm-tabacos", title: "VM Tabacos" }] }, { title: t.milestone, body: t.milestoneBody, links: [{ slug: "ola-cliente", title: "Olá Cliente" }, { slug: "sanorte", title: "Sanorte" }] }];
-  return <section id="sistemas" className="delivery-section"><div className="section-shell section-space"><div className="section-heading"><h2>{t.title}</h2><p>{t.intro}</p></div><div className="delivery-grid">{entries.map((entry) => <article key={entry.title}><h3>{entry.title}</h3><p>{entry.body}</p><div>{entry.links.map((link) => <Link className="text-link" key={link.slug} href={`/${locale}/projects/${link.slug}`} aria-label={`${t.view}: ${link.title}`}>{link.title}</Link>)}</div></article>)}</div></div></section>;
+  const pt = locale === "pt";
+  const entries = [
+    { slug: "barbershop-platform", title: pt ? "API em produção" : "API in production", name: pt ? "Plataforma para barbearias" : "Barbershop platform", production: true },
+    { slug: "sanorte", title: pt ? "MVP em ~3 semanas" : "MVP in ~3 weeks", name: "Sanorte" },
+    { slug: "vm-tabacos", title: pt ? "Mais de 2 anos de uso" : "Over 2 years of client use", name: "VM Tabacos" },
+    { slug: "thermal-printing", title: pt ? "Validado em hardware" : "Validated on hardware", name: pt ? "Impressão térmica" : "Thermal printing" },
+  ];
+  return <section id="sistemas" className="delivery-section" aria-labelledby="proof-title"><div className="section-shell proof-strip"><h2 id="proof-title">{pt ? "Entregas reais" : "Real-world delivery"}</h2><ul>{entries.map((entry) => <li key={entry.slug}><Link href={`/${locale}/projects/${entry.slug}`} aria-label={`${t.view}: ${entry.name}`}><strong className={entry.production ? "proof-production" : ""}>{entry.title}</strong><span>{entry.name}</span></Link></li>)}</ul></div></section>;
 }

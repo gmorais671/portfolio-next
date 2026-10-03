@@ -22,10 +22,10 @@ export function Header({ locale }: { locale: Locale }) {
             <span aria-current="true" lang={locale === "pt" ? "pt-BR" : "en"}>{locale === "pt" ? "Português" : "English"}</span>
             <a href={alternate} lang={other === "pt" ? "pt-BR" : "en"} hrefLang={other === "pt" ? "pt-BR" : "en"} onClick={(event) => { event.preventDefault(); window.location.assign(alternate + window.location.search + window.location.hash); }}>{other === "pt" ? "Português" : "English"}</a>
           </nav>
-          <button className="mobile-menu-button" aria-label={t.menu} aria-expanded={open} aria-controls="mobile-navigation" onClick={() => setOpen(!open)}>{open ? <X size={22} /> : <Menu size={22} />}</button>
+          <button className="mobile-menu-button" aria-label={t.menu} aria-expanded={open} aria-controls="mobile-navigation" onClick={() => setOpen(!open)} onKeyDown={(event) => { if (event.key === "Escape") setOpen(false); }}>{open ? <X size={22} /> : <Menu size={22} />}</button>
         </div>
       </div>
-      {open && <nav id="mobile-navigation" className="mobile-nav" aria-label={t.menu}>{items.map(([id, title]) => <a key={id} href={`/${locale}#${id}`} onClick={() => setOpen(false)}>{title}</a>)}</nav>}
+      <nav id="mobile-navigation" className="mobile-nav" aria-label={t.menu} hidden={!open} onKeyDown={(event) => { if (event.key === "Escape") { setOpen(false); document.querySelector<HTMLButtonElement>(".mobile-menu-button")?.focus(); } }}>{items.map(([id, title]) => <a key={id} href={`/${locale}#${id}`} onClick={() => setOpen(false)}>{title}</a>)}</nav>
     </header>
   </>;
 }
